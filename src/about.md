@@ -1,25 +1,16 @@
-# Rust API Guidelines
+# Rust API 准则
 
-This is a set of recommendations on how to design and present APIs for the Rust
-programming language. They are authored largely by the Rust library team, based
-on experiences building the Rust standard library and other crates in the Rust
-ecosystem.
+这是关于如何设计和展示 Rust 编程语言的 API 的一组建议。它们主要由 Rust 库团队基于在 Rust 中生态系统构建标准库和其 crate 的经验所撰写。
 
-These are only guidelines, some more firm than others. In some cases they are
-vague and still in development. Rust crate authors should consider them as a set
-of important considerations in the development of idiomatic and interoperable
-Rust libraries, to use as they see fit. These guidelines should not in any way
-be considered a mandate that crate authors must follow, though they may find
-that crates that conform well to these guidelines integrate better with the
-existing crate ecosystem than those that do not.
+这些只是准则，有些准则比其他准则更为严格。在某些情况下，它们仍然有些模糊，当前仍在开发中完善中。
+Rust crate 作者应在 Rust 库开发中将它们视为惯用与相互协作的一组重要因素考虑，并在他们认为合适的情况下使用。
+这些准则不应以任何方式被视为 crate 创建者必须遵循的任务，尽管他们可能会发现，符合这些指导原则的 crate 可以比那些没有遵循的 crate 更好地与现有的 crate 生态系统集成。
 
-This book is organized in two parts: the concise [checklist] of all individual
-guidelines, suitable for quick scanning during crate reviews; and topical
-chapters containing explanations of the guidelines in detail.
+这本书由两部分组成：所有单独准则的简明清单，适合在回顾 crate 时快速浏览；和局部
+包含详细解释指南的章节。
 
-If you are interested in contributing to the API guidelines, check out
-[contributing.md] and join our [Gitter channel].
+如果您有兴趣对 API 准则做出贡献，请查看[contributing.md]并加入我们的[Gitter channel]。
 
 [checklist]: checklist.html
 [contributing.md]: https://github.com/rust-lang/api-guidelines/blob/master/CONTRIBUTING.md
-[Gitter channel]: https://gitter.im/rust-impl-period/WG-libs-guidelines
+[gitter channel]: https://gitter.im/rust-impl-period/WG-libs-guidelines
