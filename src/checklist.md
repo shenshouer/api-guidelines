@@ -45,7 +45,7 @@
   - [ ] 带有明确的接收者的函数就是方法 ([C-METHOD])
   - [ ] 函数以输入参数作为输出参数 ([C-NO-OUT])
   - [ ] 操作符重载并不奇怪 ([C-OVERLOAD])
-  - [ ] 仅有只能指针实现 `Deref` 与 `DerefMut` ([C-DEREF])
+  - [ ] 仅有智能指针实现 `Deref` 与 `DerefMut` ([C-DEREF])
   - [ ] 构造函数是静态的固有的方法 ([C-CTOR])
 - **灵活性** _(Crate 支持各种实际使用案例)_
   - [ ] 函数公开中间结果以避免重复工作 ([C-INTERMEDIATE])
