@@ -1,141 +1,130 @@
-# Rust API Guidelines Checklist
+# Rust API 准则清单
 
 <!-- Read CONTRIBUTING.md before writing new guidelines -->
 
-- **Naming** *(crate aligns with Rust naming conventions)*
-  - [ ] Casing conforms to RFC 430 ([C-CASE])
-  - [ ] Ad-hoc conversions follow `as_`, `to_`, `into_` conventions ([C-CONV])
-  - [ ] Getter names follow Rust convention ([C-GETTER])
-  - [ ] Methods on collections that produce iterators follow `iter`, `iter_mut`, `into_iter` ([C-ITER])
-  - [ ] Iterator type names match the methods that produce them ([C-ITER-TY])
-  - [ ] Feature names are free of placeholder words ([C-FEATURE])
-  - [ ] Names use a consistent word order ([C-WORD-ORDER])
-- **Interoperability** *(crate interacts nicely with other library functionality)*
-  - [ ] Types eagerly implement common traits ([C-COMMON-TRAITS])
+- **命名** _(crate 与 Rust 命名约定一致)_
+  - [ ] 大小写遵循 RFC 430 ([C-CASE])
+  - [ ] 特定目的约定 `as_`, `to_`, `into_` 约定 ([C-CONV])
+  - [ ] Getter 命名遵循 Rust 约定 ([C-GETTER])
+  - [ ] 集合上生成迭代器的方法遵循 `iter`, `iter_mut`, `into_iter` ([C-ITER])
+  - [ ] 迭代器类型命名与产生它们的方法相匹配 ([C-ITER-TY])
+  - [ ] 特征(Feature)命名不包含占位符单词 ([C-FEATURE])
+  - [ ] 命名使用一致的单词顺序 ([C-WORD-ORDER])
+- **互通性** _(crate 与其他库功能很好地交互)_
+  - [ ] 类型最好实现通用特征(traits) ([C-COMMON-TRAITS])
     - `Copy`, `Clone`, `Eq`, `PartialEq`, `Ord`, `PartialOrd`, `Hash`, `Debug`,
       `Display`, `Default`
-  - [ ] Conversions use the standard traits `From`, `AsRef`, `AsMut` ([C-CONV-TRAITS])
-  - [ ] Collections implement `FromIterator` and `Extend` ([C-COLLECT])
-  - [ ] Data structures implement Serde's `Serialize`, `Deserialize` ([C-SERDE])
-  - [ ] Types are `Send` and `Sync` where possible ([C-SEND-SYNC])
-  - [ ] Error types are meaningful and well-behaved ([C-GOOD-ERR])
-  - [ ] Binary number types provide `Hex`, `Octal`, `Binary` formatting ([C-NUM-FMT])
-  - [ ] Generic reader/writer functions take `R: Read` and `W: Write` by value ([C-RW-VALUE])
-- **Macros** *(crate presents well-behaved macros)*
-  - [ ] Input syntax is evocative of the output ([C-EVOCATIVE])
-  - [ ] Macros compose well with attributes ([C-MACRO-ATTR])
-  - [ ] Item macros work anywhere that items are allowed ([C-ANYWHERE])
-  - [ ] Item macros support visibility specifiers ([C-MACRO-VIS])
-  - [ ] Type fragments are flexible ([C-MACRO-TY])
-- **Documentation** *(crate is abundantly documented)*
-  - [ ] Crate level docs are thorough and include examples ([C-CRATE-DOC])
-  - [ ] All items have a rustdoc example ([C-EXAMPLE])
-  - [ ] Examples use `?`, not `try!`, not `unwrap` ([C-QUESTION-MARK])
-  - [ ] Function docs include error, panic, and safety considerations ([C-FAILURE])
-  - [ ] Prose contains hyperlinks to relevant things ([C-LINK])
-  - [ ] Cargo.toml includes all common metadata ([C-METADATA])
+  - [ ] 转换使用标准库特征(traits) `From`, `AsRef`, `AsMut` ([C-CONV-TRAITS])
+  - [ ] 集合实现 `FromIterator` 与 `Extend` ([C-COLLECT])
+  - [ ] 数据结构(Data structures)实现 Serde 的 `Serialize`, `Deserialize` ([C-SERDE])
+  - [ ] 类型尽可能是 `Send` 与 `Sync` ([C-SEND-SYNC])
+  - [ ] 错误类型是有意义且行为良好的 ([C-GOOD-ERR])
+  - [ ] 二进制数类型提供了`Hex`, `Octal`, `Binary` 格式 ([C-NUM-FMT])
+  - [ ] 泛型读/写方法从值中获取`R: Read` 与`W: Write` ([C-RW-VALUE])
+- **宏指令** _( crate 提供行为良好的宏)_
+  - [ ] 输入语法唤起输出 ([C-EVOCATIVE])
+  - [ ] 宏可以很好地与属性组合在一起 ([C-MACRO-ATTR])
+  - [ ] 项宏(Item macros)可以在任何允许项的地方工作 ([C-ANYWHERE])
+  - [ ] 项目宏支持可见性说明符 ([C-MACRO-VIS])
+  - [ ] 类型片段很灵活 ([C-MACRO-TY])
+- **文档** _(crate 有大量的文档)_
+  - [ ] Crate 级别文档是必要的，并且包含例子 ([C-CRATE-DOC])
+  - [ ] 所有项目都有一个 rustdoc 示例 ([C-EXAMPLE])
+  - [ ] 使用 `?`, 而不是 `try!`, 与 `unwrap`的例子 ([C-QUESTION-MARK])
+  - [ ] 函数文档包括 error, panic 和考虑安全事项 ([C-FAILURE])
+  - [ ] 文档中包含到相关事物的超链接 ([C-LINK])
+  - [ ] Cargo.toml 包含所有公共的原数据 ([C-METADATA])
     - authors, description, license, homepage, documentation, repository,
       readme, keywords, categories
-  - [ ] Crate sets html_root_url attribute "https://docs.rs/CRATE/X.Y.Z" ([C-HTML-ROOT])
-  - [ ] Release notes document all significant changes ([C-RELNOTES])
-  - [ ] Rustdoc does not show unhelpful implementation details ([C-HIDDEN])
-- **Predictability** *(crate enables legible code that acts how it looks)*
-  - [ ] Smart pointers do not add inherent methods ([C-SMART-PTR])
-  - [ ] Conversions live on the most specific type involved ([C-CONV-SPECIFIC])
-  - [ ] Functions with a clear receiver are methods ([C-METHOD])
-  - [ ] Functions do not take out-parameters ([C-NO-OUT])
-  - [ ] Operator overloads are unsurprising ([C-OVERLOAD])
-  - [ ] Only smart pointers implement `Deref` and `DerefMut` ([C-DEREF])
-  - [ ] Constructors are static, inherent methods ([C-CTOR])
-- **Flexibility** *(crate supports diverse real-world use cases)*
-  - [ ] Functions expose intermediate results to avoid duplicate work ([C-INTERMEDIATE])
-  - [ ] Caller decides where to copy and place data ([C-CALLER-CONTROL])
-  - [ ] Functions minimize assumptions about parameters by using generics ([C-GENERIC])
-  - [ ] Traits are object-safe if they may be useful as a trait object ([C-OBJECT])
-- **Type safety** *(crate leverages the type system effectively)*
-  - [ ] Newtypes provide static distinctions ([C-NEWTYPE])
-  - [ ] Arguments convey meaning through types, not `bool` or `Option` ([C-CUSTOM-TYPE])
-  - [ ] Types for a set of flags are `bitflags`, not enums ([C-BITFLAG])
-  - [ ] Builders enable construction of complex values ([C-BUILDER])
-- **Dependability** *(crate is unlikely to do the wrong thing)*
-  - [ ] Functions validate their arguments ([C-VALIDATE])
-  - [ ] Destructors never fail ([C-DTOR-FAIL])
-  - [ ] Destructors that may block have alternatives ([C-DTOR-BLOCK])
-- **Debuggability** *(crate is conducive to easy debugging)*
-  - [ ] All public types implement `Debug` ([C-DEBUG])
-  - [ ] `Debug` representation is never empty ([C-DEBUG-NONEMPTY])
-- **Future proofing** *(crate is free to improve without breaking users' code)*
-  - [ ] Sealed traits protect against downstream implementations ([C-SEALED])
-  - [ ] Structs have private fields ([C-STRUCT-PRIVATE])
-  - [ ] Newtypes encapsulate implementation details ([C-NEWTYPE-HIDE])
-  - [ ] Data structures do not duplicate derived trait bounds ([C-STRUCT-BOUNDS])
-- **Necessities** *(to whom they matter, they really matter)*
-  - [ ] Public dependencies of a stable crate are stable ([C-STABLE])
-  - [ ] Crate and its dependencies have a permissive license ([C-PERMISSIVE])
+  - [ ] Crate 设置 html_root_url 属性 "https://docs.rs/CRATE/X.Y.Z" ([C-HTML-ROOT])
+  - [ ] 发布说明记录重大有意义的变更 ([C-RELNOTES])
+  - [ ] Rustdoc 不要展示无用的实现细节 ([C-HIDDEN])
+- **可预测性** _(crate 启用行为清晰的代码)_
+  - [ ] 智能指针不添加固有方法 ([C-SMART-PTR])
+  - [ ] 转换依赖于所涉及的最确切的类型 ([C-CONV-SPECIFIC])
+  - [ ] 带有明确的接收者的函数就是方法 ([C-METHOD])
+  - [ ] 函数以输入参数作为输出参数 ([C-NO-OUT])
+  - [ ] 操作符重载并不奇怪 ([C-OVERLOAD])
+  - [ ] 仅有只能指针实现 `Deref` 与 `DerefMut` ([C-DEREF])
+  - [ ] 构造函数是静态的固有的方法 ([C-CTOR])
+- **灵活性** _(Crate 支持各种实际使用案例)_
+  - [ ] 函数公开中间结果以避免重复工作 ([C-INTERMEDIATE])
+  - [ ] 调用者决定哪儿复制与哪里放数据 ([C-CALLER-CONTROL])
+  - [ ] 函数通过使用泛型来最小化对参数的假设 ([C-GENERIC])
+  - [ ] 如果 trait 对象是有用的，那么它们就是对象安全的 ([C-OBJECT])
+- **类型安全** _(crate 有效地利用了类型系统)_
+  - [ ] Newtypes 提供静态区别 ([C-NEWTYPE])
+  - [ ] 参数通过类型表达意义, 而非 `bool` 或 `Option` ([C-CUSTOM-TYPE])
+  - [ ] 一组标记的类型是 `bitflags`, 而不是枚举 ([C-BITFLAG])
+  - [ ] 构建器可以构建复杂的值 ([C-BUILDER])
+- **可靠性** _(crate 不太可能做错误的事情)_
+  - [ ] 函数验证它们的参数 ([C-VALIDATE])
+  - [ ] 析构函数从不失败 ([C-DTOR-FAIL])
+  - [ ] 可能阻塞的析构函数有其他替代方案 ([C-DTOR-BLOCK])
+- **可调试性** _(crate 对简单调试有帮助)_
+  - [ ] 所有公共类型都继承 `Debug` ([C-DEBUG])
+  - [ ] `Debug` 表示永远不会是空的([C-DEBUG-NONEMPTY])
+- **前瞻检验** _(Crate 可以自由改进而不会破坏用户的代码)_
+  - [ ] 未知特性(Sealed traits)要防止下游实现 ([C-SEALED])
+  - [ ] 结构有私有字段 ([C-STRUCT-PRIVATE])
+  - [ ] Newtypes 封装实现细节 ([C-NEWTYPE-HIDE])
+  - [ ] 数据结构(Data structures)不要重复衍生 trait 界定 ([C-STRUCT-BOUNDS])
+- **须知** _(对于关注的人，这些真的很重要)_
+  - [ ] 稳定的 Crate 的公共依赖性稳定 ([C-STABLE])
+  - [ ] Crate 及其依赖有许可证 ([C-PERMISSIVE])
 
-
-[C-CASE]: naming.html#c-case
-[C-CONV]: naming.html#c-conv
-[C-GETTER]: naming.html#c-getter
-[C-ITER]: naming.html#c-iter
-[C-ITER-TY]: naming.html#c-iter-ty
-[C-FEATURE]: naming.html#c-feature
-[C-WORD-ORDER]: naming.html#c-word-order
-
-[C-COMMON-TRAITS]: interoperability.html#c-common-traits
-[C-CONV-TRAITS]: interoperability.html#c-conv-traits
-[C-COLLECT]: interoperability.html#c-collect
-[C-SERDE]: interoperability.html#c-serde
-[C-SEND-SYNC]: interoperability.html#c-send-sync
-[C-GOOD-ERR]: interoperability.html#c-good-err
-[C-NUM-FMT]: interoperability.html#c-num-fmt
-[C-RW-VALUE]: interoperability.html#c-rw-value
-
-[C-EVOCATIVE]: macros.html#c-evocative
-[C-MACRO-ATTR]: macros.html#c-macro-attr
-[C-ANYWHERE]: macros.html#c-anywhere
-[C-MACRO-VIS]: macros.html#c-macro-vis
-[C-MACRO-TY]: macros.html#c-macro-ty
-
-[C-CRATE-DOC]: documentation.html#c-crate-doc
-[C-EXAMPLE]: documentation.html#c-example
-[C-QUESTION-MARK]: documentation.html#c-question-mark
-[C-FAILURE]: documentation.html#c-failure
-[C-LINK]: documentation.html#c-link
-[C-METADATA]: documentation.html#c-metadata
-[C-HTML-ROOT]: documentation.html#c-html-root
-[C-RELNOTES]: documentation.html#c-relnotes
-[C-HIDDEN]: documentation.html#c-hidden
-
-[C-SMART-PTR]: predictability.html#c-smart-ptr
-[C-CONV-SPECIFIC]: predictability.html#c-conv-specific
-[C-METHOD]: predictability.html#c-method
-[C-NO-OUT]: predictability.html#c-no-out
-[C-OVERLOAD]: predictability.html#c-overload
-[C-DEREF]: predictability.html#c-deref
-[C-CTOR]: predictability.html#c-ctor
-
-[C-INTERMEDIATE]: flexibility.html#c-intermediate
-[C-CALLER-CONTROL]: flexibility.html#c-caller-control
-[C-GENERIC]: flexibility.html#c-generic
-[C-OBJECT]: flexibility.html#c-object
-
-[C-NEWTYPE]: type-safety.html#c-newtype
-[C-CUSTOM-TYPE]: type-safety.html#c-custom-type
-[C-BITFLAG]: type-safety.html#c-bitflag
-[C-BUILDER]: type-safety.html#c-builder
-
-[C-VALIDATE]: dependability.html#c-validate
-[C-DTOR-FAIL]: dependability.html#c-dtor-fail
-[C-DTOR-BLOCK]: dependability.html#c-dtor-block
-
-[C-DEBUG]: debuggability.html#c-debug
-[C-DEBUG-NONEMPTY]: debuggability.html#c-debug-nonempty
-
-[C-SEALED]: future-proofing.html#c-sealed
-[C-STRUCT-PRIVATE]: future-proofing.html#c-struct-private
-[C-NEWTYPE-HIDE]: future-proofing.html#c-newtype-hide
-[C-STRUCT-BOUNDS]: future-proofing.html#c-struct-bounds
-
-[C-STABLE]: necessities.html#c-stable
-[C-PERMISSIVE]: necessities.html#c-permissive
+[c-case]: naming.html#c-case
+[c-conv]: naming.html#c-conv
+[c-getter]: naming.html#c-getter
+[c-iter]: naming.html#c-iter
+[c-iter-ty]: naming.html#c-iter-ty
+[c-feature]: naming.html#c-feature
+[c-word-order]: naming.html#c-word-order
+[c-common-traits]: interoperability.html#c-common-traits
+[c-conv-traits]: interoperability.html#c-conv-traits
+[c-collect]: interoperability.html#c-collect
+[c-serde]: interoperability.html#c-serde
+[c-send-sync]: interoperability.html#c-send-sync
+[c-good-err]: interoperability.html#c-good-err
+[c-num-fmt]: interoperability.html#c-num-fmt
+[c-rw-value]: interoperability.html#c-rw-value
+[c-evocative]: macros.html#c-evocative
+[c-macro-attr]: macros.html#c-macro-attr
+[c-anywhere]: macros.html#c-anywhere
+[c-macro-vis]: macros.html#c-macro-vis
+[c-macro-ty]: macros.html#c-macro-ty
+[c-crate-doc]: documentation.html#c-crate-doc
+[c-example]: documentation.html#c-example
+[c-question-mark]: documentation.html#c-question-mark
+[c-failure]: documentation.html#c-failure
+[c-link]: documentation.html#c-link
+[c-metadata]: documentation.html#c-metadata
+[c-html-root]: documentation.html#c-html-root
+[c-relnotes]: documentation.html#c-relnotes
+[c-hidden]: documentation.html#c-hidden
+[c-smart-ptr]: predictability.html#c-smart-ptr
+[c-conv-specific]: predictability.html#c-conv-specific
+[c-method]: predictability.html#c-method
+[c-no-out]: predictability.html#c-no-out
+[c-overload]: predictability.html#c-overload
+[c-deref]: predictability.html#c-deref
+[c-ctor]: predictability.html#c-ctor
+[c-intermediate]: flexibility.html#c-intermediate
+[c-caller-control]: flexibility.html#c-caller-control
+[c-generic]: flexibility.html#c-generic
+[c-object]: flexibility.html#c-object
+[c-newtype]: type-safety.html#c-newtype
+[c-custom-type]: type-safety.html#c-custom-type
+[c-bitflag]: type-safety.html#c-bitflag
+[c-builder]: type-safety.html#c-builder
+[c-validate]: dependability.html#c-validate
+[c-dtor-fail]: dependability.html#c-dtor-fail
+[c-dtor-block]: dependability.html#c-dtor-block
+[c-debug]: debuggability.html#c-debug
+[c-debug-nonempty]: debuggability.html#c-debug-nonempty
+[c-sealed]: future-proofing.html#c-sealed
+[c-struct-private]: future-proofing.html#c-struct-private
+[c-newtype-hide]: future-proofing.html#c-newtype-hide
+[c-struct-bounds]: future-proofing.html#c-struct-bounds
+[c-stable]: necessities.html#c-stable
+[c-permissive]: necessities.html#c-permissive
