@@ -7,7 +7,7 @@
   - [ ] 特定目的约定 `as_`, `to_`, `into_` 约定 ([C-CONV])
   - [ ] Getter 命名遵循 Rust 约定 ([C-GETTER])
   - [ ] 集合上生成迭代器的方法遵循 `iter`, `iter_mut`, `into_iter` ([C-ITER])
-  - [ ] 迭代器类型命名与产生它们的方法相匹配 ([C-ITER-TY])
+  - [ ] 迭代器类型命名与产生它们的方法相对应 ([C-ITER-TY])
   - [ ] 特征(Feature)命名不包含占位符单词 ([C-FEATURE])
   - [ ] 命名使用一致的单词顺序 ([C-WORD-ORDER])
 - **互通性** _(crate 与其他库功能很好地交互)_
