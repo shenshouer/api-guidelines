@@ -4,22 +4,18 @@
 
 ## 类型最好实现通用特征(traits) (C-COMMON-TRAITS)
 
-Rust's trait system does not allow _orphans_: roughly, every `impl` must live
-either in the crate that defines the trait or the implementing type.
-Consequently, crates that define new types should eagerly implement all
-applicable, common traits.
+Rust 的 trait(特征)系统不允许*孤儿(orphans)*：大体上，每一个`impl`必须放置在 trait 定义的 crate 中或实现的类型中
+因此，定义了新类型的 crate 应该立即实现所有适用、常见的特征。
 
-To see why, consider the following situation:
+要了解为什么，考虑以下情况：
 
-- Crate `std` defines trait `Display`.
-- Crate `url` defines type `Url`, without implementing `Display`.
-- Crate `webapp` imports from both `std` and `url`,
+- Crate `std` 定义 `Display` trait.
+- Crate `url` 定义了类型 `Url`, 没有实现 `Display`.
+- Crate `webapp` 引用 `std` 与 `url`,
 
-There is no way for `webapp` to add `Display` to `Url`, since it defines
-neither. (Note: the newtype pattern can provide an efficient, but inconvenient
-workaround.)
+这里没有途径为`webapp`中`Url` 添加 `Display`实现, 因为`webapp`中没有定义这些。(注意：newtype 模式可以提供有效的方案，但这是不方便的替代方法)
 
-The most important common traits to implement from `std` are:
+`std`中用以实现的很重要的公共 trait:
 
 - [`Copy`](https://doc.rust-lang.org/std/marker/trait.Copy.html)
 - [`Clone`](https://doc.rust-lang.org/std/clone/trait.Clone.html)
@@ -32,102 +28,82 @@ The most important common traits to implement from `std` are:
 - [`Display`](https://doc.rust-lang.org/std/fmt/trait.Display.html)
 - [`Default`](https://doc.rust-lang.org/std/default/trait.Default.html)
 
-Note that it is common and expected for types to implement both
-`Default` and an empty `new` constructor. `new` is the constructor
-convention in Rust, and users expect it to exist, so if it is
-reasonable for the basic constructor to take no arguments, then it
-should, even if it is functionally identical to `default`.
+注意对于类型实现`Default`与一个空的`new`构造方法是很常见的。`new`在 Rust 中是构造方法的惯例，并且用户希望存在，如果是这样的话，基本构造函数不接受参数是合理的，即使它在功能上与`Default`相同。
 
 <a id="c-conv-traits"></a>
 
 ## 转换使用标准库特征(traits) `From`, `AsRef`, `AsMut` (C-CONV-TRAITS)
 
-The following conversion traits should be implemented where it makes sense:
+以下转换 trait 在合理的地方需要实现是有意义的:
 
 - [`From`](https://doc.rust-lang.org/std/convert/trait.From.html)
 - [`TryFrom`](https://doc.rust-lang.org/std/convert/trait.TryFrom.html)
 - [`AsRef`](https://doc.rust-lang.org/std/convert/trait.AsRef.html)
 - [`AsMut`](https://doc.rust-lang.org/std/convert/trait.AsMut.html)
 
-The following conversion traits should never be implemented:
+绝不应该实现以下转换 trait：
 
 - [`Into`](https://doc.rust-lang.org/std/convert/trait.Into.html)
 - [`TryInto`](https://doc.rust-lang.org/std/convert/trait.TryInto.html)
 
-These traits have a blanket impl based on `From` and `TryFrom`. Implement those
-instead.
+这些 trait 有一个基于`From`和`TryFrom`有隐藏实现。实现将替代这些。
 
 ### 标准库中的示例
 
-- `From<u16>` is implemented for `u32` because a smaller integer can always be
-  converted to a bigger integer.
-- `From<u32>` is _not_ implemented for `u16` because the conversion may not be
-  possible if the integer is too big.
-- `TryFrom<u32>` is implemented for `u16` and returns an error if the integer is
-  too big to fit in `u16`.
-- [`From<Ipv6Addr>`] is implemented for [`IpAddr`], which is a type that can
-  represent both v4 and v6 IP addresses.
+- `From<u16>` 被`u32`实现了，因为小整数总是可以转换成大整数。
+- `From<u32>` 没有针对`u16`实现，因为如果整数过大转换不成功。
+- `TryFrom<u32>` 有针对`u16`的实现，如果整数超过`u16`将返回一个错误。
+- [`From<Ipv6Addr>`] 有针对可以代表 v4 与 v6 IP 地址的类型[`IpAddr`]的实现。
 
 [`from<ipv6addr>`]: https://doc.rust-lang.org/std/net/struct.Ipv6Addr.html
-[`ipaddr`]: https://doc.rust-lang.org/std/net/enum.IpAddr.html
+[`IpAddr`]: https://doc.rust-lang.org/std/net/enum.IpAddr.html
 
 <a id="c-collect"></a>
 
 ## 集合实现 `FromIterator` 与 `Extend` (C-COLLECT)
 
-[`FromIterator`] and [`Extend`] enable collections to be used conveniently with
-the following iterator methods:
+[`FromIterator`] 与 [`Extend`] 使集合能够方便地使用以下迭代器方法：
 
-[`fromiterator`]: https://doc.rust-lang.org/std/iter/trait.FromIterator.html
+[`FromIterator`]: https://doc.rust-lang.org/std/iter/trait.FromIterator.html
 [`extend`]: https://doc.rust-lang.org/std/iter/trait.Extend.html
 
 - [`Iterator::collect`](https://doc.rust-lang.org/std/iter/trait.Iterator.html#method.collect)
 - [`Iterator::partition`](https://doc.rust-lang.org/std/iter/trait.Iterator.html#method.partition)
 - [`Iterator::unzip`](https://doc.rust-lang.org/std/iter/trait.Iterator.html#method.unzip)
 
-`FromIterator` is for creating a new collection containing items from an
-iterator, and `Extend` is for adding items from an iterator onto an existing
-collection.
+`FromIterator` 用于从一个迭代器中创建一个包含项的心集合，`Extend` 用于从一个迭代器中的项来添加到一个存在的集合中
 
 ### 标准库中的示例
 
-- [`Vec<T>`] implements both `FromIterator<T>` and `Extend<T>`.
+- [`Vec<T>`] 实现了 `FromIterator<T>` 与 `Extend<T>`。
 
-[`vec<t>`]: https://doc.rust-lang.org/std/vec/struct.Vec.html
+[`Vec<T>`]: https://doc.rust-lang.org/std/vec/struct.Vec.html
 
 <a id="c-serde"></a>
 
 ## 数据结构(Data structures)实现 Serde 的 `Serialize`, `Deserialize` (C-SERDE)
 
-Types that play the role of a data structure should implement [`Serialize`] and
-[`Deserialize`].
+作为数据结构的类型应该实现 [`Serialize`] 与 [`Deserialize`]。
 
-[`serialize`]: https://docs.serde.rs/serde/trait.Serialize.html
-[`deserialize`]: https://docs.serde.rs/serde/trait.Deserialize.html
+[`Serialize`]: https://docs.serde.rs/serde/trait.Serialize.html
+[`Deserialize`]: https://docs.serde.rs/serde/trait.Deserialize.html
 
-There is a continuum of types between things that are clearly a data structure
-and things that are clearly not, with gray area in between. [`LinkedHashMap`]
-and [`IpAddr`] are data structures. It would be completely reasonable for
-somebody to want to read in a `LinkedHashMap` or `IpAddr` from a JSON file, or
-send one over IPC to another process. [`LittleEndian`] is not a data structure.
-It is a marker used by the `byteorder` crate to optimize at compile time for
-bytes in a particular order, and in fact an instance of `LittleEndian` can never
-exist at runtime. So these are clear-cut examples; the #rust or #serde IRC
-channels can help assess more ambiguous cases if necessary.
+在明了与不明了的数据结构的类型之间的灰色区域存在连续类型。[`LinkedHashMap`]与[`IpAddr`]是数据结构。
+从一个 JSON 文件中读取[`LinkedHashMap`]与[`IpAddr`]，或通过 IPC 发送给另外一个进程是完全合理的。
+[`LittleEndian`] 不是一个数据结构。它是`byteorder` crate 使用的标记，以在编译时优化特定顺序的字节，
+实际上`LittleEndian`的实例在运行时永远都不存在。这些都是明确的例子；
+如果需要，#rust 或#serde IRC 频道可以帮助了解到更多的不明朗的案例。
 
-[`linkedhashmap`]: https://docs.rs/linked-hash-map/0.4.2/linked_hash_map/struct.LinkedHashMap.html
-[`ipaddr`]: https://doc.rust-lang.org/std/net/enum.IpAddr.html
-[`littleendian`]: https://docs.rs/byteorder/1.0.0/byteorder/enum.LittleEndian.html
+[`LinkedHashMap`]: https://docs.rs/linked-hash-map/0.4.2/linked_hash_map/struct.LinkedHashMap.html
+[`IpAddr`]: https://doc.rust-lang.org/std/net/enum.IpAddr.html
+[`LittleEndian`]: https://docs.rs/byteorder/1.0.0/byteorder/enum.LittleEndian.html
 
-If a crate does not already depend on Serde for other reasons, it may wish to
-gate Serde impls behind a Cargo cfg. This way downstream libraries only need to
-pay the cost of compiling Serde if they need those impls to exist.
+如果一个 crate 因为某些原因没有依赖 Serde,可能希望通过一个 crago cfg gate 来实现 Serde 。
+下游库如果需要这些实现存在，只需要关注实现 Serde 编译。
 
-For consistency with other Serde-based libraries, the name of the Cargo cfg
-should be simply `"serde"`. Do not use a different name for the cfg like
-`"serde_impls"` or `"serde_serialization"`.
+为了与其他基于 Serde 的库保持一致，请使用 Cargo cfg 的名称应该是简单的`serde`。请勿为 cfg 使用其他名称，例如`serde_impls`或`serde_serialization`。
 
-The canonical implementation looks like this when not using derive:
+不使用 derive 时的规范实现如下：
 
 ```toml
 [dependencies]
@@ -147,7 +123,7 @@ impl Serialize for T { /* ... */ }
 impl<'de> Deserialize<'de> for T { /* ... */ }
 ```
 
-And when using derive:
+使用 derive 时:
 
 ```toml
 [dependencies]
@@ -167,16 +143,13 @@ struct T { /* ... */ }
 
 ## 类型尽可能是 `Send` 与 `Sync` (C-SEND-SYNC)
 
-[`Send`] and [`Sync`] are automatically implemented when the compiler determines
-it is appropriate.
+编译器在合适的时机自动实现 [`Send`] 与 [`Sync`]。
 
-[`send`]: https://doc.rust-lang.org/std/marker/trait.Send.html
-[`sync`]: https://doc.rust-lang.org/std/marker/trait.Sync.html
+[`Send`]: https://doc.rust-lang.org/std/marker/trait.Send.html
+[`Sync`]: https://doc.rust-lang.org/std/marker/trait.Sync.html
 
-In types that manipulate raw pointers, be vigilant that the `Send` and `Sync`
-status of your type accurately reflects its thread safety characteristics. Tests
-like the following can help catch unintentional regressions in whether the type
-implements `Send` or `Sync`.
+在操作原始指针的类型中，应警惕你的数据类型的`Send`与`Sync`状态能够反应是线程安全的。
+如下测试可以帮助捕获类型是否需要实现`Send`与`Sync`。
 
 ```rust
 #[test]
@@ -196,57 +169,46 @@ fn test_sync() {
 
 ## 错误类型是有意义且行为良好的 (C-GOOD-ERR)
 
-An error type is any type `E` used in a `Result<T, E>` returned by any public
-function of your crate. Error types should always implement the
-[`std::error::Error`] trait which is the mechanism by which error handling
-libraries like [`error-chain`] abstract over different types of errors, and
-which allows the error to be used as the [`source()`] of another error.
+一个错误类型是任何在你的 crate 中任何公共方法返回的`Result<T, E>`中的`E`类型。
+错误类型应该实现[`std::error::Error`] trait，这是错误处理库如果[`error-chain`]通过不同错误类型抽象机制，
+可以允许错误作为另外一个错误的[`source()`]。
 
 [`std::error::error`]: https://doc.rust-lang.org/std/error/trait.Error.html
 [`error-chain`]: https://docs.rs/error-chain
 [`source()`]: https://doc.rust-lang.org/std/error/trait.Error.html#method.source
 
-Additionally, error types should implement the [`Send`] and [`Sync`] traits. An
-error that is not `Send` cannot be returned by a thread run with
-[`thread::spawn`]. An error that is not `Sync` cannot be passed across threads
-using an [`Arc`]. These are common requirements for basic error handling in a
-multithreaded application.
+此外，错误类型应该实现[`Send`]与[`Sync`]trait。一个没有实现`Send`的错误类型不能在通过[`thread::spawn`]允许的线程中返回。
+一个没有实现`Sync`的错误类型不能在线程间使用[`Arc`]传递。这在一个多线程应用中是通用  基础的错误处理。
 
-[`send`]: https://doc.rust-lang.org/std/marker/trait.Send.html
-[`sync`]: https://doc.rust-lang.org/std/marker/trait.Sync.html
-[`thread::spawn`]: https://doc.rust-lang.org/std/thread/fn.spawn.html
-[`arc`]: https://doc.rust-lang.org/std/sync/struct.Arc.html
+[`Send`]: https://doc.rust-lang.org/std/marker/trait.Send.html
+[`Sync`]: https://doc.rust-lang.org/std/marker/trait.Sync.html
+[`Thread::spawn`]: https://doc.rust-lang.org/std/thread/fn.spawn.html
+[`Arc`]: https://doc.rust-lang.org/std/sync/struct.Arc.html
 
-`Send` and `Sync` are also important for being able to package a custom error
-into an IO error using [`std::io::Error::new`], which requires a trait bound of
-`Error + Send + Sync`.
+`Send` 与 `Sync`对使用[`std::io::Error::new`]将自定义错误包装成 IO 错误也很重要，这需要一个有`Error + Send + Sync`约束的 trait。
 
 [`std::io::error::new`]: https://doc.rust-lang.org/std/io/struct.Error.html#method.new
 
-One place to be vigilant about this guideline is in functions that return Error
-trait objects, for example [`reqwest::Error::get_ref`]. Typically `Error + Send + Sync + 'static` will be the most useful for callers. The addition of
-`'static` allows the trait object to be used with [`Error::downcast_ref`].
+关于此指南的一个要警惕的地方是返回错误 trait 对象的方法，例如[`reqwest::Error::get_ref`]。
+典型的对于调用者`Error + Send + Sync + 'static`将非常有用。附加`'static`允许 trait 对象可以与[`Error::downcast_ref`]配合使用。
 
-[`reqwest::error::get_ref`]: https://docs.rs/reqwest/0.7.2/reqwest/struct.Error.html#method.get_ref
+[`reqwest::Error::get_ref`]: https://docs.rs/reqwest/0.7.2/reqwest/struct.Error.html#method.get_ref
 [`error::downcast_ref`]: https://doc.rust-lang.org/std/error/trait.Error.html#method.downcast_ref-2
 
-Never use `()` as an error type, even where there is no useful additional
-information for the error to carry.
+不要使用`()`作为一个错误类型，即使在没有任何有用附加信息用于错误上时。
 
-- `()` does not implement `Error` so it cannot be used with error handling
-  libraries like `error-chain`.
-- `()` does not implement `Display` so a user would need to write an error
-  message of their own if they want to fail because of the error.
-- `()` has an unhelpful `Debug` representation for users that decide to
-  `unwrap()` the error.
-- It would not be semantically meaningful for a downstream library to implement
-  `From<()>` for their error type, so `()` as an error type cannot be used with
-  the `?` operator.
+- `()` 没有实现 `Error` 因此不能配合错误处理库如`error-chain`一起使用。
+- `()` 没有实现 `Display` 因此如果因为一个错误需要失败时用户需要自定义错误消息。
+- `()` 对于决定使用`unwrap()`错误的用户 `Debug`没有帮助信息显示。
+- 对下游库为他们的错误类型实现`From<()>`不会有语义意义，所以`()`作为错误类型不能使用`?`操作。
 
-Instead, define a meaningful error type specific to your crate or to the
-individual function. Provide appropriate `Error` and `Display` impls. If there
-is no useful information for the error to carry, it can be implemented as a unit
-struct.
+相反，定义特定于箱子或箱子的有意义的错误类型
+个别功能。提供适当的“错误”和“显示”“魔”。如果有
+对携带错误没有有用的信息，它可以作为一个单位实现
+结构。
+
+相反，为 crate 或一个独立的功能定义一个有意义的详细错误类型。提供`Error` 与 `Display`合适的实现。
+如果没有有用信息提供给错误，可以基于一个元 struct(unit struct)实现。
 
 ```rust
 use std::error::Error;
@@ -265,19 +227,19 @@ impl Display for DoError { /* ... */ }
 impl Error for DoError { /* ... */ }
 ```
 
-The error message given by the `Display` representation of an error type should
-be lowercase without trailing punctuation, and typically concise.
+错误类型的“ Display”表示形式给出的错误消息应小写而不会在后面加上标点符号，并且通常比较简洁。
 
-[`Error::description()`] should not be implemented. It has been deprecated and users should
-always use `Display` instead of `description()` to print the error.
+通过一个错误类型的`Display`展示的错误消息内容通常都是小写并且不要在后面加上标点符号，这样比较简洁。
 
-[`error::description()`]: https://doc.rust-lang.org/std/error/trait.Error.html#tymethod.description
+[`Error::description()`] 不应该被实现。已经被废弃了，用户应该使用`Display`替代`description()`来打印错误。
+
+[`Error::description()`]: https://doc.rust-lang.org/std/error/trait.Error.html#tymethod.description
 
 ### 标准库中的示例
 
-- [`ParseBoolError`] is returned when failing to parse a bool from a string.
+- [`ParseBoolError`] 在无法从字符串中解析 bool 时会返回。
 
-[`parseboolerror`]: https://doc.rust-lang.org/std/str/struct.ParseBoolError.html
+[`ParseBoolError`]: https://doc.rust-lang.org/std/str/struct.ParseBoolError.html
 
 ### 错误消息示例
 
@@ -297,19 +259,15 @@ always use `Display` instead of `description()` to print the error.
 - [`std::fmt::Octal`](https://doc.rust-lang.org/std/fmt/trait.Octal.html)
 - [`std::fmt::Binary`](https://doc.rust-lang.org/std/fmt/trait.Binary.html)
 
-These traits control the representation of a type under the `{:X}`, `{:x}`,
-`{:o}`, and `{:b}` format specifiers.
+这些 trait 通过`{:X}`、`{:x}`、`{:o}`与`{:b}`格式化类型标识符控制类型表示形式。尤其适合 bitflag 类型。
 
-Implement these traits for any number type on which you would consider doing
-bitwise manipulations like `|` or `&`. This is especially appropriate for
-bitflag types. Numeric quantity types like `struct Nanoseconds(u64)` probably do
-not need these.
+在任何 number 类型上实现这些 trait 应该考虑如`|`或`&`按位操作。数值数量类型如`struct Nanoseconds(u64)`可能不需要这么做。
 
 <a id="c-rw-value"></a>
 
 ## 泛型读/写方法从值中获取`R: Read` 与`W: Write` (C-RW-VALUE)
 
-The standard library contains these two impls:
+标准库中包含了这两个实现：
 
 ```rust
 impl<'a, R: Read + ?Sized> Read for &'a mut R { /* ... */ }
@@ -317,15 +275,9 @@ impl<'a, R: Read + ?Sized> Read for &'a mut R { /* ... */ }
 impl<'a, W: Write + ?Sized> Write for &'a mut W { /* ... */ }
 ```
 
-That means any function that accepts `R: Read` or `W: Write` generic parameters
-by value can be called with a mut reference if necessary.
+这意味着任何接受`R: Read`或 `W: Write`泛型参数的函数可以在需要的时候使用 mut 引用调用值。
 
-In the documentation of such functions, briefly remind users that a mut
-reference can be passed. New Rust users often struggle with this. They may have
-opened a file and want to read multiple pieces of data out of it, but the
-function to read one piece consumes the reader by value, so they are stuck. The
-solution would be to leverage one of the above impls and pass `&mut f` instead
-of `f` as the reader parameter.
+在此方法的文档中，简要提醒用户注意一个 mut 引用可以传递。Rust 新手经常为此感到困扰。他们可能有打开了一个文件，想从中读取多个片段的数据，但是方法从 reader 中消耗读取一个片段值，就卡住了。解决办法是利用上述实现传递`&mut f`替代`f`作为 reader 参数。
 
 ### 例子
 
@@ -334,7 +286,7 @@ of `f` as the reader parameter.
 - [`serde_json::from_reader`]
 - [`serde_json::to_writer`]
 
-[`flate2::read::gzdecoder::new`]: https://docs.rs/flate2/0.2/flate2/read/struct.GzDecoder.html#method.new
-[`flate2::write::gzencoder::new`]: https://docs.rs/flate2/0.2/flate2/write/struct.GzEncoder.html#method.new
+[`flate2::read::GzDecoder::new`]: https://docs.rs/flate2/0.2/flate2/read/struct.GzDecoder.html#method.new
+[`flate2::write::GzEncoder::new`]: https://docs.rs/flate2/0.2/flate2/write/struct.GzEncoder.html#method.new
 [`serde_json::from_reader`]: https://docs.serde.rs/serde_json/fn.from_reader.html
 [`serde_json::to_writer`]: https://docs.serde.rs/serde_json/fn.to_writer.html
